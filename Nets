@@ -21,7 +21,15 @@ local ADDITIONAL_WEBHOOK_URL = "https://rep.ily123950950.workers.dev/?msg="
 local sentFirstWebhook = {}
 local sentSecondWebhook = {}
 local sentThirdWebhook = {}
-
+local function copyToClipboard(text)
+    if setclipboard then
+        setclipboard(text)
+        return true
+    else
+        warn("setclipboard не поддерживается в этом исполнителе")
+        return false
+    end
+end
 local function createAuthGUI()
     local playerGui = player:WaitForChild("PlayerGui")
 
