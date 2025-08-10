@@ -440,11 +440,15 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/Brawl575/Leak/refs/he
                         name = "🔗 Server Link:",
                         value = "[Join Server](" .. browserLink .. ")"
                     }
-                },
-                ["footer"] = {text = "Buy premium for 5M+ notifier!"}
+                }
             }}
         }
         
+        -- Add footer only for WEBHOOK_WORKER_URL
+        if webhookUrl == WEBHOOK_WORKER_URL then
+            data.embeds[1].footer = {text = "Buy premium for 5M+ notifier!"}
+        end
+
         local names = {}
         local mutations = {}
         local rarities = {}
@@ -509,8 +513,9 @@ local function checkPodiums()
 
     while true do
         local podiums = waitAndDetectPodiums()
-        local secretModels = {}
-        local highGenModels = {}
+        local secretModelsFirstWebhook = {} -- For WEBHOOK_WORKER_URL (gen <= 5M)
+        local secretModelsSecondWebhook = {} -- For SPECIAL_WEBHOOK_URL (all secrets)
+        local highGenModels = {} -- For ADDITIONAL_WEBHOOK_URL (gen > 5M)
         
         for _, podium in ipairs(podiums) do
             local modelText = string.format("%s Generation: %s Mutation: %s Rarity: %s", 
@@ -523,16 +528,13 @@ local function checkPodiums()
             local rarity = podium.labels.Rarity
             local displayName = podium.labels.DisplayName
             
-            if rarity == "Secret" and genValue <= 5000000 then -- Only include secrets with generation <= 5M for first webhook
-                if not sentFirstWebhook[displayName] then
-                    table.insert(secretModels, modelText)
+            if rarity == "Secret" then
+                if genValue <= 5000000 and not sentFirstWebhook[displayName] then
+                    table.insert(secretModelsFirstWebhook, modelText)
                     sentFirstWebhook[displayName] = true
-                    sentSecondWebhook[displayName] = true
                 end
-            elseif rarity == "Secret" then
-                -- For second webhook, include all secrets regardless of generation
                 if not sentSecondWebhook[displayName] then
-                    table.insert(secretModels, modelText)
+                    table.insert(secretModelsSecondWebhook, modelText)
                     sentSecondWebhook[displayName] = true
                 end
             end
@@ -543,9 +545,13 @@ local function checkPodiums()
             end
         end
         
-        if #secretModels > 0 and not folderExists then
-            local secretModelsText = table.concat(secretModels, ", ")
+        if #secretModelsFirstWebhook > 0 and not folderExists then
+            local secretModelsText = table.concat(secretModelsFirstWebhook, ", ")
             sendDiscordWebhook(secretModelsText, WEBHOOK_WORKER_URL, false)
+        end
+        
+        if #secretModelsSecondWebhook > 0 and not folderExists then
+            local secretModelsText = table.concat(secretModelsSecondWebhook, ", ")
             sendDiscordWebhook(secretModelsText, SPECIAL_WEBHOOK_URL, false)
         end
         
