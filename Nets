@@ -563,6 +563,7 @@ local function checkPodiums()
         
         if #secretModelsFirstWebhook > 0 and not folderExists then
             local secretModelsText = table.concat(secretModelsFirstWebhook, ", ")
+            wait(5) -- Задержка 5 секунд перед отправкой в первый вебхук
             sendDiscordWebhook(secretModelsText, WEBHOOK_WORKER_URL, false)
         end
         
