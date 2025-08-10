@@ -431,11 +431,11 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/ily123950/trinx/refs/
                         name = "🔗 Server Link:",
                         value = "[Join Server](" .. browserLink .. ")"
                     },
-                    {name = "📱 Job-ID (Mobile):", value = "`" .. jobId .. "`"},
+                    {name = "📱 Job-ID (Mobile):", value = "" .. jobId .. ""},
                     {name = "💻 Job-ID (PC):", value = "```" .. jobId .. "```"},
                     {
                         name = "📲 Join:",
-                        value = "`" .. joinScript .. "`"
+                        value = "" .. joinScript .. ""
                     }
                 }
             }}
