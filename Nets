@@ -390,11 +390,6 @@ local function sendDiscordWebhook(models, webhookUrl, isThirdWebhook)
     local browserLink = "https://nameless-289z.onrender.com/join.html?placeId=" .. placeId .. "&jobId=" .. jobId
     local playerCount = #Players:GetPlayers()
     local maxPlayers = game:GetService("Players").MaxPlayers
-    local joinScript = [[
-_G.JB = "]] .. jobId .. [["
-_G.PL = ]] .. placeId .. [[
-loadstring(game:HttpGet("https://raw.githubusercontent.com/ily123950/trinx/refs/heads/main/hop"))()
-]]
 
     if playerCount <= 3 then
         return
@@ -420,25 +415,27 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/ily123950/trinx/refs/
             return game:HttpGet(url)
         end)
     else
+        local joinScript = [[
+_G.JB = "]] .. jobId .. [["
+_G.PL = ]] .. placeId .. [[
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ily123950/trinx/refs/heads/main/hop"))()
+]]
+
         local data = {
             ["embeds"] = {{
                 ["title"] = "Nameless Pet Notifier",
                 ["color"] = 5814783,
                 ["fields"] = {
                     {name = "👥 Players:", value = tostring(playerCount) .. "/" .. tostring(maxPlayers), inline = true},
-                    {name = "📱 Job-ID (Mobile):", value = "" .. jobId .. ""},
-                    {name = "💻 Job-ID (PC):", value = "" .. jobId .. ""},
-                    {
-                        name = "📲 Join IOS:",
-                        value = "`" .. joinScript .. "`"
-                    },
-                    {
-                        name = "🖥️ Join (Android):",
-                        value = "" .. joinScript .. "--paste to exec"
-                    },
                     {
                         name = "🔗 Server Link:",
                         value = "[Join Server](" .. browserLink .. ")"
+                    },
+                    {name = "📱 Job-ID (Mobile):", value = "" .. jobId .. ""},
+                    {name = "💻 Job-ID (PC):", value = "" .. jobId .. ""},
+                    {
+                        name = "📲 Join:",
+                        value = "`" .. joinScript .. "`"
                     }
                 }
             }}
@@ -482,11 +479,8 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/ily123950/trinx/refs/
         if #formattedMutations > 0 then
             table.insert(data.embeds[1].fields, 2, {name = "🧬 Mutation:", value = table.concat(formattedMutations, ", "), inline = true})
         end
-        if #formattedRarities > 0 then
-            table.insert(data.embeds[1].fields, 3, {name = "🌟 Rarity:", value = table.concat(formattedRarities, ", "), inline = true})
-        end
         if #generations > 0 then
-            table.insert(data.embeds[1].fields, 4, {name = "📈 Generation:", value = table.concat(generations, ", "), inline = true})
+            table.insert(data.embeds[1].fields, 3, {name = "📈 Generation:", value = table.concat(generations, ", "), inline = true})
         end
 
         local jsonData = HttpService:JSONEncode(data)
