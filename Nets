@@ -415,7 +415,7 @@ local function sendDiscordWebhook(models, webhookUrl, isThirdWebhook, hasHighGen
     local playerCount = #Players:GetPlayers()
     local maxPlayers = game:GetService("Players").MaxPlayers
 
-    if playerCount <= 3 then
+    if playerCount <= 4 then
         return
     end
 
