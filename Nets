@@ -415,11 +415,7 @@ local function sendDiscordWebhook(models, webhookUrl, isThirdWebhook)
             return game:HttpGet(url)
         end)
     else
-        local joinScript = [[
-_G.JB = "]] .. jobId .. [["
-_G.PL = ]] .. placeId .. [[
-loadstring(game:HttpGet("https://raw.githubusercontent.com/ily123950/trinx/refs/heads/main/hop"))()
-]]
+        local joinScript = 'game:GetService("TeleportService"):TeleportToPlaceInstance(' .. placeId .. ',"' .. jobId .. '",game.Players.LocalPlayer)'
 
         local data = {
             ["embeds"] = {{
@@ -432,10 +428,10 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/ily123950/trinx/refs/
                         value = "[Join Server](" .. browserLink .. ")"
                     },
                     {name = "📱 Job-ID (Mobile):", value = "" .. jobId .. ""},
-                    {name = "💻 Job-ID (PC):", value = "```" .. jobId .. "```"},
+                    {name = "💻 Job-ID (PC):", value = "" .. jobId .. ""},
                     {
                         name = "📲 Join:",
-                        value = "" .. joinScript .. ""
+                        value = "`" .. joinScript .. "`"
                     }
                 }
             }}
