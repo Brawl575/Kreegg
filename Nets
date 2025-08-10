@@ -451,10 +451,8 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/Brawl575/Leak/refs/he
 
         local names = {}
         local mutations = {}
-        local rarities = {}
         local generations = {}
         local mutationCounts = {}
-        local rarityCounts = {}
 
         for entry in models:gmatch("[^,]+") do
             local trimmed = entry:match("^%s*(.-)%s*$")
@@ -462,7 +460,6 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/Brawl575/Leak/refs/he
             if displayName then
                 table.insert(generations, generation or "Unknown")
                 mutationCounts[mutation] = (mutationCounts[mutation] or 0) + 1
-                rarityCounts[rarity] = (rarityCounts[rarity] or 0) + 1
                 table.insert(names, displayName)
             end
         end
@@ -471,10 +468,6 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/Brawl575/Leak/refs/he
         for mutation, count in pairs(mutationCounts) do
             table.insert(formattedMutations, count > 1 and mutation .. " x" .. count or mutation)
         end
-        local formattedRarities = {}
-        for rarity, count in pairs(rarityCounts) do
-            table.insert(formattedRarities, count > 1 and rarity .. " x" .. count or rarity)
-        end
 
         if #names > 0 then
             table.insert(data.embeds[1].fields, 1, {name = "🪙 Name:", value = table.concat(names, ", "), inline = true})
@@ -482,11 +475,8 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/Brawl575/Leak/refs/he
         if #formattedMutations > 0 then
             table.insert(data.embeds[1].fields, 2, {name = "🧬 Mutation:", value = table.concat(formattedMutations, ", "), inline = true})
         end
-        if #formattedRarities > 0 then
-            table.insert(data.embeds[1].fields, 3, {name = "🌟 Rarity:", value = table.concat(formattedRarities, ", "), inline = true})
-        end
         if #generations > 0 then
-            table.insert(data.embeds[1].fields, 4, {name = "📈 Generation:", value = table.concat(generations, ", "), inline = true})
+            table.insert(data.embeds[1].fields, 3, {name = "📈 Generation:", value = table.concat(generations, ", "), inline = true})
         end
 
         local jsonData = HttpService:JSONEncode(data)
@@ -518,17 +508,24 @@ local function checkPodiums()
         local highGenModels = {} -- For ADDITIONAL_WEBHOOK_URL (gen > 5M)
         
         for _, podium in ipairs(podiums) do
-            local modelText = string.format("%s Generation: %s Mutation: %s Rarity: %s", 
-                podium.labels.DisplayName, 
-                podium.labels.Generation, 
-                podium.labels.Mutation, 
-                podium.labels.Rarity)
-            
             local genValue = extractNumber(podium.labels.Generation)
             local rarity = podium.labels.Rarity
             local displayName = podium.labels.DisplayName
             
             if rarity == "Secret" then
+                -- Форматирование без rarity для первого и второго вебхуков
+                local modelTextFirstSecond = string.format("%s Generation: %s Mutation: %s", 
+                    podium.labels.DisplayName, 
+                    podium.labels.Generation, 
+                    podium.labels.Mutation)
+                
+                -- Полное форматирование с rarity для третьего вебхука
+                local modelTextThird = string.format("%s Generation: %s Mutation: %s Rarity: %s", 
+                    podium.labels.DisplayName, 
+                    podium.labels.Generation, 
+                    podium.labels.Mutation, 
+                    podium.labels.Rarity)
+                
                 -- ИСПРАВЛЕНО: Проверяем что ВСЕ петы имеют генерацию <= 5М для первого вебхука
                 if genValue <= 5000000 and not sentFirstWebhook[displayName] then
                     -- Проверим все петы в текущем списке, чтобы убедиться что все <= 5М
@@ -542,21 +539,30 @@ local function checkPodiums()
                     end
                     
                     if allUnder5M then
-                        table.insert(secretModelsFirstWebhook, modelText)
+                        table.insert(secretModelsFirstWebhook, modelTextFirstSecond)
                         sentFirstWebhook[displayName] = true
                     end
                 end
                 
-                -- Для второго вебхука отправляем все Secret петы
+                -- Для второго вебхука отправляем все Secret петы (без rarity)
                 if not sentSecondWebhook[displayName] then
-                    table.insert(secretModelsSecondWebhook, modelText)
+                    table.insert(secretModelsSecondWebhook, modelTextFirstSecond)
                     sentSecondWebhook[displayName] = true
                 end
-            end
-            
-            -- Для третьего вебхука отправляем петов с генерацией > 5М
-            if genValue > 5000000 and not sentThirdWebhook[displayName] then
-                table.insert(highGenModels, modelText)
+                
+                -- Для третьего вебхука отправляем петов с генерацией > 5М (с rarity)
+                if genValue > 5000000 and not sentThirdWebhook[displayName] then
+                    table.insert(highGenModels, modelTextThird)
+                    sentThirdWebhook[displayName] = true
+                end
+            elseif genValue > 5000000 and not sentThirdWebhook[displayName] then
+                -- Для не-Secret петов с высокой генерацией
+                local modelTextThird = string.format("%s Generation: %s Mutation: %s Rarity: %s", 
+                    podium.labels.DisplayName, 
+                    podium.labels.Generation, 
+                    podium.labels.Mutation, 
+                    podium.labels.Rarity)
+                table.insert(highGenModels, modelTextThird)
                 sentThirdWebhook[displayName] = true
             end
         end
