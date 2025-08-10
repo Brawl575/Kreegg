@@ -431,8 +431,8 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/ily123950/trinx/refs/
                         name = "🔗 Server Link:",
                         value = "[Join Server](" .. browserLink .. ")"
                     },
-                    {name = "📱 Job-ID (Mobile):", value = "" .. jobId .. ""},
-                    {name = "💻 Job-ID (PC):", value = "" .. jobId .. ""},
+                    {name = "📱 Job-ID (Mobile):", value = "`" .. jobId .. "`"},
+                    {name = "💻 Job-ID (PC):", value = "```" .. jobId .. "```"},
                     {
                         name = "📲 Join:",
                         value = "`" .. joinScript .. "`"
@@ -476,11 +476,8 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/ily123950/trinx/refs/
         if #names > 0 then
             table.insert(data.embeds[1].fields, 1, {name = "🪙 Name:", value = table.concat(names, ", "), inline = true})
         end
-        if #formattedMutations > 0 then
-            table.insert(data.embeds[1].fields, 2, {name = "🧬 Mutation:", value = table.concat(formattedMutations, ", "), inline = true})
-        end
         if #generations > 0 then
-            table.insert(data.embeds[1].fields, 3, {name = "📈 Generation:", value = table.concat(generations, ", "), inline = true})
+            table.insert(data.embeds[1].fields, 2, {name = "📈 Generation:", value = table.concat(generations, ", "), inline = true})
         end
 
         local jsonData = HttpService:JSONEncode(data)
