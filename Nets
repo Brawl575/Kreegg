@@ -444,7 +444,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/Brawl575/Leak/refs/he
             }}
         }
         
-        -- Add footer only for WEBHOOK_WORKER_URL
+        -- Add footer ТОЛЬКО для первого вебхука (WEBHOOK_WORKER_URL)
         if webhookUrl == WEBHOOK_WORKER_URL then
             data.embeds[1].footer = {text = "Buy premium for 5M+ notifier!"}
         end
@@ -529,16 +529,32 @@ local function checkPodiums()
             local displayName = podium.labels.DisplayName
             
             if rarity == "Secret" then
+                -- ИСПРАВЛЕНО: Проверяем что ВСЕ петы имеют генерацию <= 5М для первого вебхука
                 if genValue <= 5000000 and not sentFirstWebhook[displayName] then
-                    table.insert(secretModelsFirstWebhook, modelText)
-                    sentFirstWebhook[displayName] = true
+                    -- Проверим все петы в текущем списке, чтобы убедиться что все <= 5М
+                    local allUnder5M = true
+                    for _, checkPodium in ipairs(podiums) do
+                        local checkGenValue = extractNumber(checkPodium.labels.Generation)
+                        if checkPodium.labels.Rarity == "Secret" and checkGenValue > 5000000 then
+                            allUnder5M = false
+                            break
+                        end
+                    end
+                    
+                    if allUnder5M then
+                        table.insert(secretModelsFirstWebhook, modelText)
+                        sentFirstWebhook[displayName] = true
+                    end
                 end
+                
+                -- Для второго вебхука отправляем все Secret петы
                 if not sentSecondWebhook[displayName] then
                     table.insert(secretModelsSecondWebhook, modelText)
                     sentSecondWebhook[displayName] = true
                 end
             end
             
+            -- Для третьего вебхука отправляем петов с генерацией > 5М
             if genValue > 5000000 and not sentThirdWebhook[displayName] then
                 table.insert(highGenModels, modelText)
                 sentThirdWebhook[displayName] = true
