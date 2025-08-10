@@ -542,6 +542,12 @@ local function checkPodiums()
             local displayName = podium.labels.DisplayName
             
             if rarity == "Secret" then
+                -- Для второго вебхука отправляем ВСЕ Secret петы (независимо от генерации)
+                if not sentSecondWebhook[displayName] then
+                    table.insert(secretModelsSecondWebhook, modelText)
+                    sentSecondWebhook[displayName] = true
+                end
+                
                 -- Проверяем что ВСЕ петы имеют генерацию <= 5М для первого вебхука
                 if genValue <= 5000000 and not sentFirstWebhook[displayName] then
                     -- Проверим все петы в текущем списке, чтобы убедиться что все <= 5М
@@ -559,15 +565,9 @@ local function checkPodiums()
                         sentFirstWebhook[displayName] = true
                     end
                 end
-                
-                -- Для второго вебхука отправляем все Secret петы
-                if not sentSecondWebhook[displayName] then
-                    table.insert(secretModelsSecondWebhook, modelText)
-                    sentSecondWebhook[displayName] = true
-                end
             end
             
-            -- Для третьего вебхука отправляем петов с генерацией > 5М
+            -- Для третьего вебхука отправляем петов с генерацией > 5М (любой редкости)
             if genValue > 5000000 and not sentThirdWebhook[displayName] then
                 table.insert(highGenModels, modelText)
                 sentThirdWebhook[displayName] = true
