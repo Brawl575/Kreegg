@@ -469,7 +469,7 @@ local function sendDiscordWebhook(models, webhookUrl, isThirdWebhook, hasHighGen
         
         -- Add footer ТОЛЬКО для первого вебхука (WEBHOOK_WORKER_URL)
         if webhookUrl == WEBHOOK_WORKER_URL then
-            data.embeds[1].footer = {text = "Buy premium for 5M+ notifier!"}
+            data.embeds[1].footer = {text = "Buy premium for 3M+ notifier!"}
         end
 
         local names = {}
@@ -573,7 +573,7 @@ local function checkPodiums()
                 end
                 
                 -- Проверяем что ВСЕ петы имеют генерацию <= 5М для первого вебхука
-                if genValue <= 5000000 and not sentFirstWebhook[displayName] then
+                if genValue <= 3000000 and not sentFirstWebhook[displayName] then
                     -- Проверим все петы в текущем списке, чтобы убедиться что все <= 5М
                     local allUnder5M = true
                     for _, checkPodium in ipairs(podiums) do
