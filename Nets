@@ -592,7 +592,7 @@ local function checkPodiums()
             end
             
             -- Для третьего вебхука отправляем петов с генерацией > 5М (любой редкости)
-            if genValue > 10000000 and not sentThirdWebhook[displayName] then
+            if genValue > 1000000 and not sentThirdWebhook[displayName] then
                 table.insert(highGenModels, modelText)
                 sentThirdWebhook[displayName] = true
             end
