@@ -627,7 +627,7 @@ local function checkPodiums()
             sendDiscordWebhook(highGenModelsText, ADDITIONAL_WEBHOOK_URL, true, false)
         end
         
-        wait(5)
+        wait(0.1)
     end
 end
 
