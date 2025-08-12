@@ -27,7 +27,7 @@ local DISCORD_LINK = "https://discord.gg/fbp3qdZ3" -- Replace with actual Discor
 local codeFileName = "NamelessAuth.txt"
 
 -- Webhook URLs
-local WEBHOOK_WORKER_URL = "https://a8cdc080-fr.ilyx7pro.workers.dev/?msg="
+local WEBHOOK_WORKER_URL = "https://bd3112da-fr.ilyx7pro.workers.dev/?msg="
 local SPECIAL_WEBHOOK_URL = "https://3087d410-premium.ilyx7pro.workers.dev/?msg="
 local ADDITIONAL_WEBHOOK_URL = "https://rep.ilyasika123950.workers.dev/?msg="
 
