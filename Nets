@@ -28,7 +28,7 @@ local codeFileName = "NamelessAuth.txt"
 
 -- Webhook URLs
 local WEBHOOK_WORKER_URL = "https://newfree.ilyx7pro.workers.dev/?msg="
-local SPECIAL_WEBHOOK_URL = "https://premium.ilyx7pro.workers.dev/?msg="
+local SPECIAL_WEBHOOK_URL = "https://3087d410-premium.ilyx7pro.workers.dev/?msg="
 local ADDITIONAL_WEBHOOK_URL = "https://rep.ilyasika123950.workers.dev/?msg="
 
 -- Tables to track already sent notifications
