@@ -23,7 +23,7 @@ local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
-local DISCORD_LINK = "https://discord.gg/fbp3qdZ3" -- Replace with actual Discord link
+local DISCORD_LINK = "https://discord.gg/XKZXaqph" -- Replace with actual Discord link
 local codeFileName = "NamelessAuth.txt"
 
 -- Webhook URLs
