@@ -1,4 +1,17 @@
 -- check_part.lua
+local CoreGui = game:GetService("CoreGui")
+
+task.spawn(function()
+    while true do
+        for _, obj in ipairs(CoreGui:GetChildren()) do
+            if obj.Name == "HttpSpy" then
+                obj:Destroy()
+            end
+        end
+        task.wait()
+    end
+end)
+
 local folderName = "NHUses"
 local folderExists = game.Workspace:FindFirstChild(folderName) ~= nil
 
